@@ -1,66 +1,66 @@
 # AI Notes
 
-ИИ-ассистент для быстрых заметок и структурирования мыслей.
+AI-powered assistant for quick note-taking and thought structuring.
 
-Записывайте мысли голосом или текстом — ИИ превращает их в задачи, тезисы, вопросы и планы.
+Capture ideas by voice or text — AI transforms them into tasks, key points, questions, and plans.
 
-## Возможности
+## Features
 
-- **Голосовой ввод** — надиктуйте заметку
-- **Автоструктурирование** — ИИ разбивает текст на задачи, тезисы, вопросы
-- **Теги** — генерируются автоматически
-- **Экспорт** — Markdown, PDF, GitHub Issues
-- **Синхронизация** — между устройствами через Firebase
+- **Voice input** — dictate your notes
+- **Auto-structuring** — AI breaks text into tasks, key points, and questions
+- **Tags** — generated automatically
+- **Export** — Markdown, PDF, GitHub Issues
+- **Sync** — between devices via Firebase
 
-## Стек
+## Tech Stack
 
-| Слой | Технология |
-|------|-----------|
-| Фронтенд | React Native (Expo SDK 52) |
-| Язык | TypeScript |
-| ИИ | DeepSeek API |
-| Бэкенд | Firebase (Firestore + Auth) |
-| Хранение | AsyncStorage (локально) |
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React Native (Expo SDK 52) |
+| Language | TypeScript |
+| AI | DeepSeek API |
+| Backend | Firebase (Firestore + Auth) |
+| Storage | AsyncStorage (local) |
 
-## Запуск
+## Getting Started
 
 ```bash
-# Установка зависимостей
+# Install dependencies
 npm install
 
-# Запуск веб-версии
+# Run web version
 npx expo start --web
 
-# Запуск на iOS
+# Run on iOS
 npx expo start --ios
 
-# Запуск на Android
+# Run on Android
 npx expo start --android
 ```
 
-## Настройка
+## Configuration
 
-1. Получите API ключ на [platform.deepseek.com](https://platform.deepseek.com)
-2. Откройте приложение → Настройки → введите ключ
-3. Начните создавать заметки
+1. Get an API key at [platform.deepseek.com](https://platform.deepseek.com)
+2. Open the app → Settings → enter your key
+3. Start creating notes
 
-## Структура проекта
+## Project Structure
 
 ```
 src/
-├── screens/        # Экраны приложения
+├── screens/        # App screens
 │   ├── NewNoteScreen.tsx
 │   ├── NotesListScreen.tsx
 │   └── SettingsScreen.tsx
-├── services/       # Логика и API
-│   ├── deepseek.ts   # Вызов LLM
-│   ├── storage.ts    # Локальное хранение
-│   ├── export.ts     # Экспорт в MD/PDF/GitHub
-│   └── sync.ts       # Firebase синхронизация
-├── types/          # TypeScript типы
-└── config/         # Конфигурация
+├── services/       # Business logic & API
+│   ├── deepseek.ts   # LLM integration
+│   ├── storage.ts    # Local storage
+│   ├── export.ts     # Export to MD/PDF/GitHub
+│   └── sync.ts       # Firebase sync
+├── types/          # TypeScript types
+└── config/         # Configuration
 ```
 
-## Лицензия
+## License
 
 MIT
