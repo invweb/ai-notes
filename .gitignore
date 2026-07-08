@@ -10,3 +10,6 @@ dist/
 web-build/
 .env
 .env.local
+GoogleService-Info.plist
+.DS_Store
+ios/

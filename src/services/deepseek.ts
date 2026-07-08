@@ -1,5 +1,6 @@
 import { DEEPSEEK_API_URL, DEEPSEEK_MODEL } from '../config';
 import { StructuredNote, Task } from '../types';
+import { structureNoteOffline, generateTagsOffline } from './offline';
 
 const STRUCTURE_PROMPT = `Ты — ИИ-ассистент для структурирования мыслей. 
 Пользователь даст тебе сырую заметку (текст, голосовой ввод).
@@ -32,98 +33,121 @@ export async function structureNote(
   apiKey: string
 ): Promise<StructuredNote> {
   if (!apiKey) {
-    throw new Error('API ключ DeepSeek не задан');
+    return structureNoteOffline(rawText);
   }
 
-  const response = await fetch(DEEPSEEK_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: DEEPSEEK_MODEL,
-      messages: [
-        { role: 'system', content: STRUCTURE_PROMPT },
-        { role: 'user', content: rawText },
-      ],
-      temperature: 0.3,
-      max_tokens: 2000,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`DeepSeek API ошибка: ${response.status} — ${err}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-
-  if (!content) {
-    throw new Error('Пустой ответ от DeepSeek API');
-  }
-
-  let parsed: StructuredNote;
   try {
-    parsed = JSON.parse(content);
-  } catch {
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error('Не удалось распарсить ответ LLM как JSON');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: DEEPSEEK_MODEL,
+        messages: [
+          { role: 'system', content: STRUCTURE_PROMPT },
+          { role: 'user', content: rawText },
+        ],
+        temperature: 0.3,
+        max_tokens: 2000,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return structureNoteOffline(rawText);
     }
-    parsed = JSON.parse(jsonMatch[0]);
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+
+    if (!content) {
+      return structureNoteOffline(rawText);
+    }
+
+    let parsed: StructuredNote;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        return structureNoteOffline(rawText);
+      }
+      parsed = JSON.parse(jsonMatch[0]);
+    }
+
+    if (!parsed.title || !parsed.tasks || !parsed.keyPoints) {
+      return structureNoteOffline(rawText);
+    }
+
+    parsed.tasks = parsed.tasks.map((t: Task, i: number) => ({
+      ...t,
+      id: t.id || `t${i + 1}`,
+      done: t.done || false,
+      priority: t.priority || 'medium',
+    }));
+
+    return parsed;
+  } catch {
+    return structureNoteOffline(rawText);
   }
-
-  if (!parsed.title || !parsed.tasks || !parsed.keyPoints) {
-    throw new Error('LLM вернул неполный JSON');
-  }
-
-  parsed.tasks = parsed.tasks.map((t: Task, i: number) => ({
-    ...t,
-    id: t.id || `t${i + 1}`,
-    done: t.done || false,
-    priority: t.priority || 'medium',
-  }));
-
-  return parsed;
 }
 
 export async function generateTags(
   rawText: string,
   apiKey: string
 ): Promise<string[]> {
-  const response = await fetch(DEEPSEEK_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: DEEPSEEK_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'Сгенерируй 3-5 тегов для заметки на русском языке. Верни JSON-массив строк: ["тег1", "тег2"]. Только JSON.',
-        },
-        { role: 'user', content: rawText },
-      ],
-      temperature: 0.3,
-      max_tokens: 200,
-    }),
-  });
-
-  if (!response.ok) return [];
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) return [];
+  if (!apiKey) {
+    return generateTagsOffline(rawText);
+  }
 
   try {
-    return JSON.parse(content);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+
+    const response = await fetch(DEEPSEEK_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: DEEPSEEK_MODEL,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'Сгенерируй 3-5 тегов для заметки на русском языке. Верни JSON-массив строк: ["тег1", "тег2"]. Только JSON.',
+          },
+          { role: 'user', content: rawText },
+        ],
+        temperature: 0.3,
+        max_tokens: 200,
+      }),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) return generateTagsOffline(rawText);
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) return generateTagsOffline(rawText);
+
+    try {
+      return JSON.parse(content);
+    } catch {
+      const match = content.match(/\[[\s\S]*?\]/);
+      return match ? JSON.parse(match[0]) : generateTagsOffline(rawText);
+    }
   } catch {
-    const match = content.match(/\[[\s\S]*?\]/);
-    return match ? JSON.parse(match[0]) : [];
+    return generateTagsOffline(rawText);
   }
 }

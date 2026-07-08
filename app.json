@@ -1,5 +1,48 @@
 {
-  "plugins": [
-    "expo-asset"
-  ]
+  "expo": {
+    "name": "AI Notes",
+    "slug": "ai-notes",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "Разрешите $(PRODUCT_NAME) использовать распознавание речи",
+        "NSMicrophoneUsageDescription": "Разрешите $(PRODUCT_NAME) использовать микрофон для распознавания речи"
+      },
+      "bundleIdentifier": "com.anonymous.ai-notes"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-asset",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Разрешите $(PRODUCT_NAME) использовать микрофон для распознавания речи",
+          "speechRecognitionPermission": "Разрешите $(PRODUCT_NAME) использовать распознавание речи"
+        }
+      ]
+    ]
+  }
 }

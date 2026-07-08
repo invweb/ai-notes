@@ -65,13 +65,13 @@ src/
 
 🚧 **Active development** — MVP is functional, work in progress on:
 
-- [ ] Real speech-to-text (not just TTS)
-- [ ] Firebase Auth for sync
-- [ ] Dark mode
-- [ ] Offline mode with local LLM
-- [ ] Web version (Expo Web)
-- [ ] Tags filtering
-- [ ] Note editing after creation
+- [x] Real speech-to-text (not just TTS)
+- [x] Firebase Auth for sync
+- [x] Dark mode
+- [x] Offline mode with local LLM
+- [x] Web version (Expo Web)
+- [x] Tags filtering
+- [x] Note editing after creation
 
 ## License
 

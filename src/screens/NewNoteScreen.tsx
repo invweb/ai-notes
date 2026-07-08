@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,49 +11,67 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import * as Speech from 'expo-speech';
 import { addNote } from '../services/storage';
 import { structureNote, generateTags } from '../services/deepseek';
 import { Note, StructuredNote } from '../types';
 import { exportMarkdown, exportPDF } from '../services/export';
+import { useSpeechRecognition } from '../services/speech';
+import { useThemeContext } from '../config/ThemeContext';
 
 interface Props {
   apiKey: string;
   onNoteSaved: () => void;
 }
 
+const showAlert = (title: string, message: string) => {
+  if (Platform.OS === 'web') {
+    window.alert(`${title}: ${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<StructuredNote | null>(null);
   const [tags, setTags] = useState<string[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
+  const { colors } = useThemeContext();
+
+  const styles = createStyles(colors);
+
+  const handleTranscript = useCallback((newText: string) => {
+    setText((prev) => (prev ? `${prev} ${newText}` : newText));
+  }, []);
+
+  const {
+    isRecording,
+    error: speechError,
+    startRecording,
+    stopRecording,
+  } = useSpeechRecognition(handleTranscript);
+
+  useEffect(() => {
+    if (speechError) {
+      showAlert('Ошибка', speechError);
+    }
+  }, [speechError]);
 
   const handleVoiceInput = () => {
     if (isRecording) {
-      Speech.stop();
-      setIsRecording(false);
-      return;
+      stopRecording();
+    } else {
+      startRecording('ru-RU');
     }
-
-    setIsRecording(true);
-    Speech.speak(text || 'Начните говорить', {
-      language: 'ru-RU',
-      onDone: () => setIsRecording(false),
-      onError: () => {
-        setIsRecording(false);
-        Alert.alert('Ошибка', 'Распознавание речи недоступно');
-      },
-    });
   };
 
   const handleStructure = async () => {
     if (!text.trim()) {
-      Alert.alert('Ошибка', 'Введите текст заметки');
+      showAlert('Ошибка', 'Введите текст заметки');
       return;
     }
     if (!apiKey) {
-      Alert.alert('Ошибка', 'Задайте API ключ DeepSeek в настройках');
+      showAlert('Ошибка', 'Задайте API ключ DeepSeek в настройках');
       return;
     }
 
@@ -65,8 +83,9 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
       ]);
       setResult(structured);
       setTags(generatedTags);
-    } catch (err: any) {
-      Alert.alert('Ошибка', err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
+      showAlert('Ошибка', message);
     } finally {
       setLoading(false);
     }
@@ -90,7 +109,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
     setText('');
     setResult(null);
     setTags([]);
-    Alert.alert('Готово', 'Заметка сохранена!');
+    showAlert('Готово', 'Заметка сохранена!');
     onNoteSaved();
   };
 
@@ -110,8 +129,9 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
     try {
       if (format === 'md') await exportMarkdown(note);
       else await exportPDF(note);
-    } catch (err: any) {
-      Alert.alert('Ошибка экспорта', err.message);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Неизвестная ошибка экспорта';
+      showAlert('Ошибка экспорта', message);
     }
   };
 
@@ -224,51 +244,56 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f7' },
-  scroll: { padding: 20, paddingTop: 60 },
-  title: { fontSize: 28, fontWeight: '700', color: '#1a1a1a', marginBottom: 16 },
-  input: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    fontSize: 16,
-    minHeight: 160,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    lineHeight: 24,
-  },
-  buttonRow: { flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' },
-  btn: {
-    backgroundColor: '#007AFF',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-  },
-  btnSecondary: { backgroundColor: '#e8e8ed' },
-  btnDisabled: { opacity: 0.6 },
-  btnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
-  result: {
-    marginTop: 20,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  resultTitle: { fontSize: 20, fontWeight: '700', color: '#1a1a1a' },
-  resultSummary: { fontSize: 14, color: '#666', marginTop: 4, marginBottom: 12 },
-  section: { marginTop: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', color: '#333', marginBottom: 4 },
-  taskItem: { fontSize: 14, color: '#333', marginVertical: 2 },
-  listItem: { fontSize: 14, color: '#333', marginVertical: 2 },
-  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
-  tag: {
-    backgroundColor: '#e8f4fd',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  tagText: { fontSize: 12, color: '#007AFF' },
-});
+import { ThemeColors } from '../config/theme';
+
+function createStyles(colors: ThemeColors) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.background },
+    scroll: { padding: 20, paddingTop: 60 },
+    title: { fontSize: 28, fontWeight: '700', color: colors.text, marginBottom: 16 },
+    input: {
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+      fontSize: 16,
+      minHeight: 160,
+      borderWidth: 1,
+      borderColor: colors.border,
+      color: colors.text,
+      lineHeight: 24,
+    },
+    buttonRow: { flexDirection: 'row', gap: 8, marginTop: 12, flexWrap: 'wrap' },
+    btn: {
+      backgroundColor: colors.primary,
+      borderRadius: 10,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+    },
+    btnSecondary: { backgroundColor: colors.surfaceSecondary },
+    btnDisabled: { opacity: 0.6 },
+    btnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+    result: {
+      marginTop: 20,
+      backgroundColor: colors.surface,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    resultTitle: { fontSize: 20, fontWeight: '700', color: colors.text },
+    resultSummary: { fontSize: 14, color: colors.textSecondary, marginTop: 4, marginBottom: 12 },
+    section: { marginTop: 12 },
+    sectionTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: 4 },
+    taskItem: { fontSize: 14, color: colors.text, marginVertical: 2 },
+    listItem: { fontSize: 14, color: colors.text, marginVertical: 2 },
+    tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
+    tag: {
+      backgroundColor: colors.tagBg,
+      borderRadius: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    tagText: { fontSize: 12, color: colors.tagText },
+  });
+}
