@@ -184,6 +184,7 @@ src/
 
 ## Screenshot
 ![App](screenshot.png)
+@SEE screenshot.png
 
 ## License
 
