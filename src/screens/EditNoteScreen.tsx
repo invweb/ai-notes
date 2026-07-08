@@ -44,11 +44,11 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
 
   const handleRestructure = async () => {
     if (!rawText.trim()) {
-      Alert.alert('Ошибка', 'Введите текст заметки');
+      Alert.alert('Error', 'Please enter note text');
       return;
     }
     if (!apiKey) {
-      Alert.alert('Ошибка', 'Задайте API ключ DeepSeek в настройках');
+      Alert.alert('Error', 'Please set DeepSeek API key in settings');
       return;
     }
 
@@ -61,8 +61,8 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
       setResult(structured);
       setTags(generatedTags);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      Alert.alert('Ошибка', message);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      Alert.alert('Error', message);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,7 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
     };
 
     await updateNote(updatedNote);
-    Alert.alert('Готово', 'Заметка обновлена!');
+    Alert.alert('Done', 'Note updated!');
     onSaved();
     onClose();
   };
@@ -112,20 +112,20 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={handleClose}>
-            <Text style={styles.closeBtn}>Закрыть</Text>
+            <Text style={styles.closeBtn}>Close</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Редактировать</Text>
+          <Text style={styles.headerTitle}>Edit Note</Text>
           <TouchableOpacity onPress={handleSave}>
-            <Text style={styles.saveBtn}>Сохранить</Text>
+            <Text style={styles.saveBtn}>Save</Text>
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.label}>Текст заметки</Text>
+          <Text style={styles.label}>Note Text</Text>
           <TextInput
             style={styles.input}
             multiline
-            placeholder="Отредактируйте текст..."
+            placeholder="Edit your text..."
             value={rawText}
             onChangeText={setRawText}
             textAlignVertical="top"
@@ -139,20 +139,20 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.btnText}>✨ Пере estructурировать</Text>
+              <Text style={styles.btnText}>✨ Restructure</Text>
             )}
           </TouchableOpacity>
 
           {result && (
             <View style={styles.result}>
-              <Text style={styles.label}>Заголовок</Text>
+              <Text style={styles.label}>Title</Text>
               <TextInput
                 style={styles.titleInput}
                 value={result.title}
                 onChangeText={(t) => setResult({ ...result, title: t })}
               />
 
-              <Text style={styles.label}>Описание</Text>
+              <Text style={styles.label}>Summary</Text>
               <TextInput
                 style={styles.summaryInput}
                 multiline
@@ -162,7 +162,7 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
 
               {result.tasks.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Задачи:</Text>
+                  <Text style={styles.sectionTitle}>Tasks:</Text>
                   {result.tasks.map((t) => (
                     <TouchableOpacity
                       key={t.id}
@@ -187,7 +187,7 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
 
               {result.keyPoints.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Тезисы:</Text>
+                  <Text style={styles.sectionTitle}>Key Points:</Text>
                   {result.keyPoints.map((kp, i) => (
                     <Text key={i} style={styles.listItem}>• {kp}</Text>
                   ))}
@@ -196,7 +196,7 @@ export default function EditNoteScreen({ visible, note, apiKey, onClose, onSaved
 
               {result.questions.length > 0 && (
                 <View style={styles.section}>
-                  <Text style={styles.sectionTitle}>Вопросы:</Text>
+                  <Text style={styles.sectionTitle}>Questions:</Text>
                   {result.questions.map((q, i) => (
                     <Text key={i} style={styles.listItem}>❓ {q}</Text>
                   ))}

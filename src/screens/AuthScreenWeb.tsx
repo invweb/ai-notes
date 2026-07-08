@@ -52,12 +52,12 @@ export default function AuthScreenWeb({ onAuthComplete }: Props) {
 
   const handleAuth = async () => {
     if (!email.trim() || !password.trim()) {
-      showAlert('Ошибка', 'Заполните все поля');
+      showAlert('Error', 'Please fill in all fields');
       return;
     }
 
     if (password.length < 6) {
-      showAlert('Ошибка', 'Пароль должен быть не менее 6 символов');
+      showAlert('Error', 'Password must be at least 6 characters');
       return;
     }
 
@@ -70,22 +70,22 @@ export default function AuthScreenWeb({ onAuthComplete }: Props) {
       }
       onAuthComplete();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      let userMessage = 'Ошибка авторизации';
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      let userMessage = 'Authentication error';
 
       if (message.includes('auth/email-already-in-use')) {
-        userMessage = 'Email уже используется';
+        userMessage = 'Email already in use';
       } else if (message.includes('auth/invalid-email')) {
-        userMessage = 'Некорректный email';
+        userMessage = 'Invalid email';
       } else if (message.includes('auth/user-not-found')) {
-        userMessage = 'Пользователь не найден';
+        userMessage = 'User not found';
       } else if (message.includes('auth/wrong-password')) {
-        userMessage = 'Неверный пароль';
+        userMessage = 'Wrong password';
       } else if (message.includes('auth/weak-password')) {
-        userMessage = 'Слабый пароль';
+        userMessage = 'Weak password';
       }
 
-      showAlert('Ошибка', userMessage);
+      showAlert('Error', userMessage);
     } finally {
       setLoading(false);
     }
@@ -105,7 +105,7 @@ export default function AuthScreenWeb({ onAuthComplete }: Props) {
         <Text style={styles.icon}>🔐</Text>
         <Text style={styles.title}>AI Notes</Text>
         <Text style={styles.subtitle}>
-          {isLogin ? 'Войдите в аккаунт' : 'Создайте аккаунт'}
+          {isLogin ? 'Sign in to your account' : 'Create an account'}
         </Text>
 
         <View style={styles.form}>
@@ -121,7 +121,7 @@ export default function AuthScreenWeb({ onAuthComplete }: Props) {
           />
           <TextInput
             style={styles.input}
-            placeholder="Пароль"
+            placeholder="Password"
             placeholderTextColor={colors.textTertiary}
             value={password}
             onChangeText={setPassword}
@@ -137,7 +137,7 @@ export default function AuthScreenWeb({ onAuthComplete }: Props) {
               <ActivityIndicator color="#fff" />
             ) : (
               <Text style={styles.btnText}>
-                {isLogin ? 'Войти' : 'Зарегистрироваться'}
+                {isLogin ? 'Sign in' : 'Sign up'}
               </Text>
             )}
           </TouchableOpacity>
@@ -147,17 +147,17 @@ export default function AuthScreenWeb({ onAuthComplete }: Props) {
             onPress={() => setIsLogin(!isLogin)}
           >
             <Text style={styles.switchText}>
-              {isLogin ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть аккаунт? Войти'}
+              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.skipBtn} onPress={handleSkip}>
-          <Text style={styles.skipText}>Пропустить</Text>
+          <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
 
         <Text style={styles.hint}>
-          Авторизация нужна для синхронизации заметок между устройствами
+          Authentication is needed to sync notes between devices
         </Text>
       </View>
     </KeyboardAvoidingView>

@@ -47,22 +47,22 @@ export default function SettingsScreen({ apiKey, onApiKeyChange }: Props) {
 
   const handleSave = async () => {
     if (!key.trim()) {
-      Alert.alert('Ошибка', 'Введите API ключ');
+      Alert.alert('Error', 'Please enter API key');
       return;
     }
     await AsyncStorage.setItem(API_KEY_STORAGE, key.trim());
     onApiKeyChange(key.trim());
-    Alert.alert('Готово', 'API ключ сохранён');
+    Alert.alert('Done', 'API key saved');
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Настройки</Text>
+      <Text style={styles.title}>Settings</Text>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>DeepSeek API</Text>
         <Text style={styles.hint}>
-          Получите ключ на platform.deepseek.com
+          Get your key at platform.deepseek.com
         </Text>
         <View style={styles.inputRow}>
           <TextInput
@@ -76,16 +76,16 @@ export default function SettingsScreen({ apiKey, onApiKeyChange }: Props) {
           />
         </View>
         <View style={styles.switchRow}>
-          <Text style={styles.switchLabel}>Показать ключ</Text>
+          <Text style={styles.switchLabel}>Show key</Text>
           <Switch value={showKey} onValueChange={setShowKey} />
         </View>
         <TouchableOpacity style={styles.btn} onPress={handleSave}>
-          <Text style={styles.btnText}>Сохранить</Text>
+          <Text style={styles.btnText}>Save</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Оформление</Text>
+        <Text style={styles.sectionTitle}>Appearance</Text>
         <View style={styles.themeRow}>
           {(['system', 'light', 'dark'] as ThemeMode[]).map((themeMode) => (
             <TouchableOpacity
@@ -102,7 +102,7 @@ export default function SettingsScreen({ apiKey, onApiKeyChange }: Props) {
                   mode === themeMode && styles.themeBtnTextActive,
                 ]}
               >
-                {themeMode === 'system' ? '📱 Авто' : themeMode === 'light' ? '☀️ Светлая' : '🌙 Тёмная'}
+                {themeMode === 'system' ? '📱 Auto' : themeMode === 'light' ? '☀️ Light' : '🌙 Dark'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -111,15 +111,15 @@ export default function SettingsScreen({ apiKey, onApiKeyChange }: Props) {
 
       {user && (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Аккаунт</Text>
+          <Text style={styles.sectionTitle}>Account</Text>
           <Text style={styles.email}>{user.email}</Text>
           <TouchableOpacity
             style={styles.logoutBtn}
             onPress={() => {
-              Alert.alert('Выйти?', '', [
-                { text: 'Отмена', style: 'cancel' },
+              Alert.alert('Sign out?', '', [
+                { text: 'Cancel', style: 'cancel' },
                 {
-                  text: 'Выйти',
+                  text: 'Sign out',
                   style: 'destructive',
                   onPress: () => {
                     if (isWeb) {
@@ -132,18 +132,18 @@ export default function SettingsScreen({ apiKey, onApiKeyChange }: Props) {
               ]);
             }}
           >
-            <Text style={styles.logoutText}>Выйти</Text>
+            <Text style={styles.logoutText}>Sign out</Text>
           </TouchableOpacity>
         </View>
       )}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>О приложении</Text>
+        <Text style={styles.sectionTitle}>About</Text>
         <Text style={styles.aboutText}>
-          AI Assistant — быстрые заметки с ИИ-структурированием.
+          AI Notes — quick notes with AI structuring.
           {'\n\n'}
-          Записывайте мысли голосом или текстом, а ИИ превращает их в задачи,
-          тезисы и планы.
+          Capture ideas by voice or text, and AI transforms them into tasks,
+          key points, and plans.
         </Text>
         <Text style={styles.version}>v0.1.0</Text>
       </View>

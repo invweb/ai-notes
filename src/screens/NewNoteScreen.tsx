@@ -17,6 +17,7 @@ import { Note, StructuredNote } from '../types';
 import { exportMarkdown, exportPDF } from '../services/export';
 import { useSpeechRecognition } from '../services/speech';
 import { useThemeContext } from '../config/ThemeContext';
+import { ThemeColors } from '../config/theme';
 
 interface Props {
   apiKey: string;
@@ -53,7 +54,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
 
   useEffect(() => {
     if (speechError) {
-      showAlert('Ошибка', speechError);
+      showAlert('Error', speechError);
     }
   }, [speechError]);
 
@@ -61,17 +62,17 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
     if (isRecording) {
       stopRecording();
     } else {
-      startRecording('ru-RU');
+      startRecording('en-US');
     }
   };
 
   const handleStructure = async () => {
     if (!text.trim()) {
-      showAlert('Ошибка', 'Введите текст заметки');
+      showAlert('Error', 'Please enter note text');
       return;
     }
     if (!apiKey) {
-      showAlert('Ошибка', 'Задайте API ключ DeepSeek в настройках');
+      showAlert('Error', 'Please set DeepSeek API key in settings');
       return;
     }
 
@@ -84,8 +85,8 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
       setResult(structured);
       setTags(generatedTags);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      showAlert('Ошибка', message);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      showAlert('Error', message);
     } finally {
       setLoading(false);
     }
@@ -109,7 +110,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
     setText('');
     setResult(null);
     setTags([]);
-    showAlert('Готово', 'Заметка сохранена!');
+    showAlert('Done', 'Note saved!');
     onNoteSaved();
   };
 
@@ -130,8 +131,8 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
       if (format === 'md') await exportMarkdown(note);
       else await exportPDF(note);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Неизвестная ошибка экспорта';
-      showAlert('Ошибка экспорта', message);
+      const message = err instanceof Error ? err.message : 'Export error';
+      showAlert('Export Error', message);
     }
   };
 
@@ -141,12 +142,12 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>Новая заметка</Text>
+        <Text style={styles.title}>New Note</Text>
 
         <TextInput
           style={styles.input}
           multiline
-          placeholder="Напишите или надиктуйте мысль..."
+          placeholder="Write or dictate your thoughts..."
           value={text}
           onChangeText={setText}
           textAlignVertical="top"
@@ -158,7 +159,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
             onPress={handleVoiceInput}
           >
             <Text style={styles.btnText}>
-              {isRecording ? '⏹ Стоп' : '🎤 Голос'}
+              {isRecording ? '⏹ Stop' : '🎤 Voice'}
             </Text>
           </TouchableOpacity>
 
@@ -170,7 +171,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.btnText}>✨ Структурировать</Text>
+              <Text style={styles.btnText}>✨ Structure</Text>
             )}
           </TouchableOpacity>
         </View>
@@ -182,7 +183,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
 
             {result.tasks.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Задачи:</Text>
+                <Text style={styles.sectionTitle}>Tasks:</Text>
                 {result.tasks.map((t) => (
                   <Text key={t.id} style={styles.taskItem}>
                     {t.done ? '✅' : '⬜'} {t.text}{' '}
@@ -194,7 +195,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
 
             {result.keyPoints.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Тезисы:</Text>
+                <Text style={styles.sectionTitle}>Key Points:</Text>
                 {result.keyPoints.map((kp, i) => (
                   <Text key={i} style={styles.listItem}>• {kp}</Text>
                 ))}
@@ -203,7 +204,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
 
             {result.questions.length > 0 && (
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Вопросы:</Text>
+                <Text style={styles.sectionTitle}>Questions:</Text>
                 {result.questions.map((q, i) => (
                   <Text key={i} style={styles.listItem}>❓ {q}</Text>
                 ))}
@@ -222,7 +223,7 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
 
             <View style={styles.buttonRow}>
               <TouchableOpacity style={styles.btn} onPress={handleSave}>
-                <Text style={styles.btnText}>💾 Сохранить</Text>
+                <Text style={styles.btnText}>💾 Save</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.btn, styles.btnSecondary]}
@@ -243,8 +244,6 @@ export default function NewNoteScreen({ apiKey, onNoteSaved }: Props) {
     </KeyboardAvoidingView>
   );
 }
-
-import { ThemeColors } from '../config/theme';
 
 function createStyles(colors: ThemeColors) {
   return StyleSheet.create({

@@ -38,8 +38,8 @@ const showConfirm = (title: string, message: string, onConfirm: () => void) => {
     }
   } else {
     Alert.alert(title, message, [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Удалить', style: 'destructive', onPress: onConfirm },
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: onConfirm },
     ]);
   }
 };
@@ -100,7 +100,7 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
   };
 
   const handleDelete = (id: string) => {
-    showConfirm('Удалить заметку?', '', async () => {
+    showConfirm('Delete note?', '', async () => {
       await deleteNote(id);
       setNotes((prev) => prev.filter((n) => n.id !== id));
     });
@@ -111,8 +111,8 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
       if (format === 'md') await exportMarkdown(note);
       else await exportPDF(note);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      showAlert('Ошибка', message);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      showAlert('Error', message);
     }
   };
 
@@ -120,7 +120,7 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
     const issue = noteToGitHubIssue(note);
     const content = `Title: ${issue.title}\n\n${issue.body}`;
     Clipboard.setStringAsync(content).then(() => {
-      showAlert('Скопировано', 'Содержимое скопировано в буфер обмена');
+      showAlert('Copied', 'Content copied to clipboard');
     });
   };
 
@@ -131,7 +131,7 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
           {item.structured.title}
         </Text>
         <Text style={styles.cardDate}>
-          {item.createdAt.toLocaleDateString('ru-RU')}
+          {item.createdAt.toLocaleDateString('en-US')}
         </Text>
       </View>
       <Text style={styles.cardSummary} numberOfLines={2}>
@@ -141,12 +141,12 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
       <View style={styles.cardMeta}>
         <Text style={styles.cardFormat}>
           {item.structured.format === 'tasks'
-            ? '📋 Задачи'
+            ? '📋 Tasks'
             : item.structured.format === 'plan'
-            ? '📝 План'
+            ? '📝 Plan'
             : item.structured.format === 'checklist'
-            ? '☑️ Чеклист'
-            : '💡 Идея'}
+            ? '☑️ Checklist'
+            : '💡 Idea'}
         </Text>
         <Text style={styles.cardTasks}>
           {item.structured.tasks.length > 0
@@ -191,13 +191,13 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Мои заметки</Text>
+      <Text style={styles.title}>My Notes</Text>
 
       {notes.length > 0 && (
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="Поиск заметок..."
+            placeholder="Search notes..."
             placeholderTextColor={colors.textTertiary}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -234,7 +234,7 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
           </ScrollView>
           {selectedTags.length > 0 && (
             <TouchableOpacity onPress={clearFilters}>
-              <Text style={styles.clearFilter}>Сбросить</Text>
+              <Text style={styles.clearFilter}>Clear</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -243,17 +243,17 @@ export default function NotesListScreen({ refreshKey, apiKey = '' }: Props) {
       {notes.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyIcon}>📝</Text>
-          <Text style={styles.emptyText}>Пока нет заметок</Text>
+          <Text style={styles.emptyText}>No notes yet</Text>
           <Text style={styles.emptyHint}>
-            Нажмите "Новая заметка" чтобы начать
+            Tap "New Note" to get started
           </Text>
         </View>
       ) : filteredNotes.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyIcon}>🔍</Text>
-          <Text style={styles.emptyText}>Ничего не найдено</Text>
+          <Text style={styles.emptyText}>No results found</Text>
           <Text style={styles.emptyHint}>
-            Попробуйте изменить фильтры
+            Try adjusting your filters
           </Text>
         </View>
       ) : (

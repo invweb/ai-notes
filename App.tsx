@@ -129,7 +129,7 @@ function AppContent() {
         <Tab.Screen
           name="Notes"
           options={{
-            tabBarLabel: 'Заметки',
+            tabBarLabel: 'Notes',
             tabBarIcon: ({ size }) => (
               <TabIcon icon="📝" size={size} />
             ),
@@ -140,7 +140,7 @@ function AppContent() {
         <Tab.Screen
           name="NewNote"
           options={{
-            tabBarLabel: 'Новая',
+            tabBarLabel: 'New',
             tabBarIcon: ({ size }) => (
               <TabIcon icon="✨" size={size} />
             ),
@@ -153,7 +153,7 @@ function AppContent() {
         <Tab.Screen
           name="Settings"
           options={{
-            tabBarLabel: 'Настройки',
+            tabBarLabel: 'Settings',
             tabBarIcon: ({ size }) => (
               <TabIcon icon="⚙️" size={size} />
             ),
