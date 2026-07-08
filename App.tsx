@@ -9,6 +9,7 @@ import SettingsScreen from './src/screens/SettingsScreen';
 import { RootTabParamList } from './src/types';
 import { ThemeProvider, useThemeContext } from './src/config/ThemeContext';
 import { getNotes } from './src/services/storage';
+import { populateDemoData } from './src/services/demo';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
@@ -48,6 +49,12 @@ function AppContent() {
       });
       return unsubscribe;
     }
+  }, []);
+
+  useEffect(() => {
+    populateDemoData().then(() => {
+      setRefreshKey((k) => k + 1);
+    });
   }, []);
 
   useEffect(() => {
