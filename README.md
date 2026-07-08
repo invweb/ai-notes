@@ -182,6 +182,9 @@ src/
 5. **Export important notes** — keep backups as Markdown or PDF
 6. **Use offline mode** — notes are saved locally even without internet
 
+## Screenshot
+![App](screenshot.png)
+
 ## License
 
 MIT
